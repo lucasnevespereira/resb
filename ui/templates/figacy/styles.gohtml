@@ -485,6 +485,25 @@
         padding-top: 12px;
     }
 
+    /* The projects block may span pages, but a single project may not. */
+    aside>div.projects {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .project-item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .project-item + .project-item {
+        padding-top: 16px;
+    }
+
+    .projects .section-title {
+        break-after: avoid;
+    }
+
     .project-item .skills-value {
         line-height: 1.45;
         margin-top: 4px;
@@ -492,6 +511,9 @@
 
     .project-link {
         font-style: italic;
+        color: #1a56b0;
+        text-decoration: underline;
+        text-underline-offset: 2px;
     }
 
     .skills-category {

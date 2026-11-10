@@ -50,6 +50,46 @@
         var top = aside.getBoundingClientRect().top + window.scrollY;
         var end = top + aside.offsetHeight;
 
+        // The measurement above runs on one continuous page, whereas the print
+        // engine moves any block that cannot be split to the next page, which
+        // pushes the end of the content further down. Replay those moves.
+        var abs = function (el) {
+            var r = el.getBoundingClientRect();
+            return { top: r.top + window.scrollY, bottom: r.bottom + window.scrollY };
+        };
+        var units = [];
+        Array.prototype.forEach.call(aside.children, function (child) {
+            if (!child.classList.contains('projects')) {
+                units.push(abs(child));
+                return;
+            }
+            var items = child.querySelectorAll('.project-item');
+            var title = child.querySelector('.section-title');
+            if (!items.length) {
+                units.push(abs(child));
+                return;
+            }
+            // The title stays with the first project.
+            units.push({ top: abs(title).top, bottom: abs(items[0]).bottom });
+            for (var i = 1; i < items.length; i++) {
+                units.push(abs(items[i]));
+            }
+        });
+
+        var shift = 0;
+        units.forEach(function (u) {
+            var t = u.top + shift;
+            var b = u.bottom + shift;
+            var pageEnd = firstPage;
+            while (pageEnd <= t) {
+                pageEnd += nextPages;
+            }
+            if (b > pageEnd && (b - t) < nextPages) {
+                shift += pageEnd - t;
+            }
+        });
+        end += shift;
+
         var boundary = firstPage;
         while (boundary < end) {
             boundary += nextPages;
